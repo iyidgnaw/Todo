@@ -1,0 +1,7 @@
+*.pyc
+*.xml
+*.name
+*.iml
+*.class
+*.DS_Store
+*.swp
