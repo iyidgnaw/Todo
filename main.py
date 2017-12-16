@@ -93,7 +93,7 @@ if __name__ == '__main__':
     if not os.path.isfile(CACHE):
         # Init the app
         todo = toDoApp()
-        print "Init process done!"
+        print ("Init process done!")
     else:
         with open(CACHE, 'rb') as f:
             todo = pickle.load(f)
