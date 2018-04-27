@@ -1,11 +1,22 @@
 #! /usr/local/bin/python3
 '''Main module of my Todo app'''
 
-import argparse
 import os
 import pickle
+import signal
+import sys
 
 CACHE = os.getcwd() + '/appCache'
+HELP_MSG = 'User Commands:\n\
+        show: show the things in current list.\n\
+        listall: show available lists in app.\n\
+        add [content]: add a new task to current list.\n\
+        delete [task_id]: delete a task from current list with an id.\n\
+        abort [list_name]: abort the current list.\n\
+        new [list_name]: create a new list with given name.\n\
+        use [list_name]: switch to specific list with given name.\n\
+        exit: save the exit the app.'
+
 
 class TodoApp(object):
     '''todo application main class'''
@@ -16,6 +27,10 @@ class TodoApp(object):
         self.showAllThing()
 
     def addThing(self, content):
+        if not type(content) is str: 
+            raise ValueError('Check your content please')
+        if not content:
+            raise ValueError('Empty content is not allowed')
         currentList = self._getCurrentList()
         currentList.addThing(content)
 
@@ -23,6 +38,12 @@ class TodoApp(object):
         return self._registered[self._using]
 
     def createList(self, nameOfList):
+        if not type(nameOfList) is str: 
+            raise ValueError('Given name is not support')
+        if not nameOfList:
+            raise ValueError('List name is required')
+        if nameOfList in self._registered:
+            raise ValueError('List exist')
         self._registered[nameOfList] = toDoList()
         self.useList(nameOfList)
 
@@ -40,9 +61,21 @@ class TodoApp(object):
         currentList.deleteThing(t_id)
 
     def deleteList(self, nameOfList):
+        if not type(nameOfList) is str: 
+            raise ValueError('Given name is not support')
+        if nameOfList not in self._registered:
+            raise ValueError('Given list name not found')
+        if nameOfList == 'Default':
+            raise ValueError('Cannot delete default list')
+        if nameOfList == self._using:
+            self.useList('Default')
         self._registered.pop(nameOfList, None)
 
     def useList(self, nameOfList):
+        if not type(nameOfList) is str: 
+            raise ValueError('Given name is not support')
+        if nameOfList not in self._registered:
+            raise ValueError('Given list name not found')
         self._using = nameOfList
         print('Using {}'.format(nameOfList))
 
@@ -53,6 +86,47 @@ class TodoApp(object):
     # TODO: Rename List
     def renameList(self):
         pass
+
+    def main(self, todo_args):
+        supportCmd = {
+                'show': lambda args: self.showAllThing(),
+                'listall': lambda args: self.showAllList(),
+                'add': self.addThing,
+                'delete': self.deleteThing,
+                'abort': self.deleteList,
+                'new': self.createList,
+                'use': self.useList,
+                'exit': lambda args: self.exit()
+                }
+        if not todo_args:
+            self.showAllThing()
+
+        elif todo_args[0] in ('-i', '--interactive'):
+            while 1:
+                args = input('\n>').strip().split(' ')
+                if not args or not args[0]:
+                    print(HELP_MSG)
+                    continue
+                cmd = args.pop(0)
+                if cmd not in supportCmd:
+                    print('Unknown commands!')
+                    print(HELP_MSG)
+                    continue
+                try:
+                    supportCmd.get(cmd, lambda x: print(HELP_MSG))\
+                    (' '.join(args))
+                except ValueError as err:
+                    print(err.args[0])
+
+        else:
+            print('Use -i or --interactive to enter interactive mode')
+
+    def exit(self, sig, frame):
+        with open(CACHE, 'wb') as backup:
+            pickle.dump(self, backup)
+        print('\nCurrent tasks saved. Keep Moving!')
+        print('{}\nGoodbye\n{}'.format('*'*50, '*'*50))
+        sys.exit(0)
 
 class toDoThing(object):
     '''todo thing'''
@@ -80,45 +154,11 @@ class toDoList(object):
 
 
 if __name__ == '__main__':
-    print ('#'*50)
-    print ('TODO is Todo!')
-    print ('Author: iyidgnaw')
-    print ('#'*50)
-    supportCmd = {'show': 'showAllThing',# show things in current list
-                  'listall': 'showAllList',# list all lists
-                  'add': 'addThing',# Add thing
-                  'delete': 'deleteThing',# Delete thing
-                  'abort': 'deleteList',# Delete list
-                  'new': 'createList',# Create new list
-                  'use': 'useList' # Switch to list
-                  }
+    print ('{}\nTODO is Todo!\n{}'.format('*'*50, '*'*50))
     if not os.path.isfile(CACHE):
-        # Init the app
         todo = TodoApp()
-        print ('Init process done!')
     else:
         with open(CACHE, 'rb') as f:
             todo = pickle.load(f)
-
-    parser = argparse.ArgumentParser(description='Todo List App in terminal')
-    parser.add_argument('command', choices=supportCmd.keys())
-    parser.add_argument('-n', '--name', type=str,
-        help='The given list name', default=None)
-    parser.add_argument('-c', '--content', type=str,
-        help='The content you want in the Thing', default=None)
-    parser.add_argument('--id', type=int,
-        help='The id you want to delete', default=None)
-    args = parser.parse_args()
-
-    func = getattr(todo, supportCmd[args.command])
-    if args.command == 'add':
-        func(args.content)
-    elif args.command in ['use', 'abort', 'new']:
-        func(args.name)
-    elif args.command == 'delete':
-        func(args.id)
-    else:
-        func()
-
-    with open(CACHE, 'wb') as f:
-        pickle.dump(todo, f)
+    signal.signal(signal.SIGINT, todo.exit)
+    todo.main(sys.argv[1:])
