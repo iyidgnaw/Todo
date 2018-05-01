@@ -71,13 +71,22 @@ class TodoApp(object):
         self._using = nameOfList
         print('Using {}'.format(nameOfList))
 
-    # TODO: Edit Thing
-    def _editThing(self):
-        pass
+    def _editThing(self, args):
+        t_id, *new_content = args.split(' ')
+        new_content = " ".join(new_content)
+        currentList = self._getCurrentList()
+        if int(t_id) > currentList.getListLen():
+            raise ValueError(MSG['Invalid id'])
+        currentList.editThing(t_id, new_content)
 
-    # TODO: Rename List
-    def _renameList(self):
-        pass
+
+    def _renameList(self, names):
+        old_name, new_name = names.split(' ')
+        if not old_name or not new_name:
+            raise ValueError(MSG['Empty Field'])
+        if old_name not in self._registered:
+            raise ValueError(MSG['Item Exists'])
+        self._registered[new_name] = self._registered.pop(old_name)
 
     def _help(self, command=None):
         if not command:
@@ -105,8 +114,10 @@ class TodoApp(object):
                 'listall': lambda args: self._showAllList(),
                 'add': self._addThing,
                 'delete': self._deleteThing,
+                'edit': self._editThing,
                 'abort': self._deleteList,
                 'new': self._createList,
+                'rename': self._renameList,
                 'use': self._useList,
                 'exit': lambda args: self.exit(signal.SIGINT, None),
                 'help': self._help
@@ -128,7 +139,7 @@ class TodoApp(object):
                 try:
                     supportCmd.get(cmd, lambda x: print(HELP_MSG))\
                     (' '.join(args))
-                except ValueError as err:
+                except (ValueError, TypeError) as err:
                     print(err.args[0])
 
         else:
@@ -150,6 +161,10 @@ class toDoList(object):
     def addThing(self, content):
         newThing = toDoThing(content)
         self._listOfThings.append(newThing)
+
+    def editThing(self, t_id, content):
+        newThing = toDoThing(content)
+        self._listOfThings[int(t_id)-1] = newThing
 
     def deleteThing(self, t_id):
         self._listOfThings.pop(int(t_id)-1)
