@@ -2,23 +2,20 @@ import os
 
 CACHE = os.getcwd() + '/appCache'
 HELP_MSG = 'User Commands:\n\
-        show: show the things in current list.\n\
-        listall: show available lists in app.\n\
-        add : add a new task to current list.\n\
-        delete : delete a task from current list with an id.\n\
-        abort : abort the current list.\n\
-        new : create a new list with given name.\n\
-        use : switch to specific list with given name.\n\
+        ls: list all lists or list all items.\n\
+        new : create a new list or a new item.\n\
+        rm : delete a item or delete a list.\n\
+        mv : update the list name or move an item to another list.\n\
+        main : go back to main menu\n\
         exit: save the exit the app.'
 
 HELP_USAGE = {
-        'show': 'Usage:\n  show',
-        'listall': 'Usage:\n  listall',
-        'add': 'Usage:\n add [content]',
-        'delete': 'Usage:\n delete [task_id]',
-        'abort': 'Usage:\n abort [list_name]',
-        'new': 'Usage:\n new [list_name]',
-        'use': 'Usage:\n use [list_name]',
+        'ls': 'Usage:\n  ls',
+        'new': 'Usage:\n new [listName/content]',
+        'rm': 'Usage:\n rm [task_id/listName]',
+        'use': 'Usage:\n use [listName]',
+        'mv': 'Usage:\n mv listName listName / mv itemId listName',
+        'main': 'Usage:\n main',
         'exit': 'Usage:\n exit'
         }
 

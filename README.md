@@ -10,5 +10,20 @@ You can then type `help` or `ANYTHING YOU WANT` to get the supported commands li
 
 Enjoy. 
 
+### TODO:
+- [x] ls in top menu will present all lists  
+- [x] ls in list menu will list all items  
+- [x] new in top menu will create a list (name cannot be duplicate or None)  
+- [x] new in list menu will create an item (content cannot be None)  
+- [x] rm in top menu will delete a list  
+- [x] rm in list menu will delete an item  
+- [x] mv in top menu will change the list name (mv oldName newName)  
+- [ ] mv in list menu will move item to another list (mv itemId listName)  
+- [x] main will go back to main menu  
+- [ ] in-app auto-completion  
+- [ ] reset whole app  
 
+
+Exceptions:
+    ItemIdNotFound, ListNameNotFound, ListNameConflict
 
