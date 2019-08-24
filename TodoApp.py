@@ -12,7 +12,7 @@ from TodoExceptions import ListNameConflictError, ListNameNotFoundError
 
 
 class TodoApp(object):
-    '''todo application main class'''
+    '''Todo application main class'''
     def __init__(self):
         self._registered = {'Default': TodoList('Default')}
         self._cur = None
@@ -38,7 +38,6 @@ class TodoApp(object):
             for listName in self._registered:
                 print(listName)
 
-
     def _delete(self, content):
         if self._cur:
             # Delete an item
@@ -47,13 +46,11 @@ class TodoApp(object):
             # Delete a list
             self._registered.pop(content, None)
 
-
     def _useList(self, listName):
         if listName not in self._registered:
             raise ListNameNotFoundError
         self._cur = self._registered[listName]
         print('Using {}'.format(self._cur.getName()))
-
 
     def _update(self, names):
         old_name, new_name = names.split(' ')
@@ -75,7 +72,7 @@ class TodoApp(object):
         print(HELP_USAGE[command])
         return
 ###############################################################################
-# Public Funtions
+# Public Functions
 ###############################################################################
 
     def exit(self, sig, frame):

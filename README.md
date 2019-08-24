@@ -22,6 +22,7 @@ Enjoy.
 - [x] main will go back to main menu  
 - [ ] in-app auto-completion  
 - [ ] reset whole app  
+- [ ] Persist into database
 
 
 Exceptions:
